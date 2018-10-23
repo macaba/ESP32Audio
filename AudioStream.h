@@ -46,8 +46,9 @@ typedef struct audio_block_struct {
 	uint8_t  reserved1;
 	uint16_t memory_pool_index;
     float    data[AUDIO_BLOCK_SAMPLES];
-	int      blockLength = AUDIO_BLOCK_SAMPLES; // AUDIO_BLOCK_SAMPLES is 128, from AudioStream.h
-    float    sampleRate = AUDIO_SAMPLE_RATE; // AUDIO_SAMPLE_RATE is 44117.64706 from AudioStream.h
+	//int      blockLength = AUDIO_BLOCK_SAMPLES; // AUDIO_BLOCK_SAMPLES is 128, from AudioStream.h
+    //float    sampleRate = AUDIO_SAMPLE_RATE; // AUDIO_SAMPLE_RATE is 44117.64706 from AudioStream.h
+	//int 	 byteLength = AUDIO_BLOCK_SAMPLES * sizeof(float);
 } audio_block_t;
 
 
@@ -87,6 +88,11 @@ protected:
 	AudioStream::initialize_memory(data, num); \
 })
 
+// #define AudioMemory(num) ({ \
+// 	static audio_block_t *data = (audio_block_t*)ps_malloc(num * sizeof(audio_block_t)); \
+// 	AudioStream::initialize_memory(data, num); \
+// })
+
 #define AudioMemoryUsage() (AudioStream::memory_used)
 #define AudioMemoryUsageMax() (AudioStream::memory_used_max)
 #define AudioMemoryUsageMaxReset() (AudioStream::memory_used_max = AudioStream::memory_used)
@@ -123,10 +129,15 @@ public:
 	static uint16_t memory_used;
 	static uint16_t memory_used_max;
 	static void update_all(void);
+
+	//The following 5 are public for CPU reporting
 	char* name;
-protected:
+	static AudioStream *first_update; // for update_all
+	AudioStream *next_update; // for update_all
 	bool active;			//If true; object has been connected to
 	bool blocking;			//If true; Ignore this object when calculating CPU clocks
+	bool initialised;		//If false: Ignore this object when calculating CPU clocks. Allows for lazy loaded classes that instantiate PSRAM or Flash.
+protected:
 	unsigned char num_inputs;
 	static audio_block_t * allocate(void);
 	static void release(audio_block_t * block);
@@ -144,8 +155,6 @@ private:
 	audio_block_t **inputQueue;
 	static bool update_scheduled;
 	virtual void update(void) = 0;
-	static AudioStream *first_update; // for update_all
-	AudioStream *next_update; // for update_all
 	static audio_block_t *memory_pool;
 	static uint32_t memory_pool_available_mask[];
 	static uint16_t memory_pool_first_mask;			

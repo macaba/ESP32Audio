@@ -299,7 +299,7 @@ void AudioStream::update_all(void) // AudioStream::update_all()
 	portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 	for (p = AudioStream::first_update; p; p = p->next_update) {
 		if (p->active) {
-			if(p->blocking){
+			if(p->blocking || !p->initialised){
 				p->update();
 				p->clocksPerUpdate = 0;
 			}
