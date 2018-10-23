@@ -35,6 +35,7 @@ class AudioMixer4 : public AudioStream
 public:
 	AudioMixer4(void) : AudioStream(4, inputQueueArray, "AudioMixer4") {
 		for (int i=0; i<4; i++) multiplier[i] = 1.0;
+		initialised = true;
 	}
 	virtual void update(void);
 	void gain(unsigned int channel, float gain) {

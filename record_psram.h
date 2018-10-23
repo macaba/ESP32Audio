@@ -9,7 +9,7 @@
 class AudioRecordPSRAM : public AudioStream
 {
 public:
-	AudioRecordPSRAM(void) : AudioStream(1, inputQueueArray, "AudioRecordPSRAM") {}
+	AudioRecordPSRAM(void) : AudioStream(1, inputQueueArray, "AudioRecordPSRAM") { }
 	virtual void update(void);
     void startRecord() { playing = false; recordPointer = 0; record = true; printf("Start Record\n"); }
     void stopRecord() { record = false; printf("Stop Record\n"); }

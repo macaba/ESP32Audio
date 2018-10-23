@@ -43,6 +43,7 @@ public:
 		sustain(0.5f);
 		release(300.0f);
 		releaseNoteOn(5.0f);
+		initialised = true;
 	}
 	void noteOn();
 	void noteOff();

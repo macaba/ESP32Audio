@@ -7,7 +7,7 @@
 class AudioOutputI2S : public AudioStream
 {
 public:
-	AudioOutputI2S(void) : AudioStream(2, inputQueueArray, "AudioOutputI2S") { init(); blocking = true; }
+	AudioOutputI2S(void) : AudioStream(2, inputQueueArray, "AudioOutputI2S") { init(); blocking = true; initialised = true; }
 	virtual ~AudioOutputI2S();
 	virtual void update(void);	
 	friend class AudioInputI2S;

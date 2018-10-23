@@ -7,7 +7,7 @@
 class AudioInputI2S : public AudioStream
 {
 public:
-    AudioInputI2S() : AudioStream(0, NULL, "AudioInputI2S") { init(); blocking = true; }
+    AudioInputI2S() : AudioStream(0, NULL, "AudioInputI2S") { init(); blocking = true; initialised = true; }
     virtual void update(void);
 private:
     static void init();

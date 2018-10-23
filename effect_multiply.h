@@ -32,7 +32,7 @@
 class AudioEffectMultiply : public AudioStream
 {
 public:
-	AudioEffectMultiply() : AudioStream(2, inputQueueArray, "AudioEffectMultiply") { }
+	AudioEffectMultiply() : AudioStream(2, inputQueueArray, "AudioEffectMultiply") { initialised = true; }
 	virtual void update(void);
 private:
 	audio_block_t *inputQueueArray[2];

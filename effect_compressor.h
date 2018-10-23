@@ -7,7 +7,7 @@
 class AudioEffectCompressor : public AudioStream
 {
 public:
-	AudioEffectCompressor() : AudioStream(1, inputQueueArray, "AudioEffectCompressor") { defaultSetup(); }
+	AudioEffectCompressor() : AudioStream(1, inputQueueArray, "AudioEffectCompressor") { defaultSetup(); initialised = true; }
     void setupSimple(	
         float pregain,   // dB, amount to boost the signal before applying compression [0 to 100]
         float threshold, // dB, level where compression kicks in [-100 to 0]

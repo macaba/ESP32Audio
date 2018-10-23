@@ -2,6 +2,7 @@
 #include <Audio.h>
 #include <AudioStream.h>
 #include "cpuStats.h"
+#include "cpuDisplay.h"
 
 // GUItool: begin automatically generated code
 AudioSynthWaveformSine   sine4;          //xy=229,369

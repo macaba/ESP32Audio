@@ -35,7 +35,7 @@ class AudioSynthWaveformSine : public AudioStream
 //GUI: inputs:0, outputs:1 //this line used for automatic generation of GUI node
 //GUI: shortName:sine  //this line used for automatic generation of GUI node
 public:
-	AudioSynthWaveformSine() : AudioStream(0, NULL, "AudioSynthWaveformSine"), magnitude(1.0) { } //uses default AUDIO_SAMPLE_RATE from AudioStream.h
+	AudioSynthWaveformSine() : AudioStream(0, NULL, "AudioSynthWaveformSine"), magnitude(1.0) { initialised = true; }
 	void frequency(float freq) {
 		if (freq < 0.0) freq = 0.0;
 		else if (freq > AUDIO_SAMPLE_RATE_EXACT/2.f) freq = AUDIO_SAMPLE_RATE_EXACT/2.f;

@@ -41,6 +41,7 @@ public:
 		tailindex = 0;
 		maxblocks = 0;
 		memset(queue, 0, sizeof(queue));
+        initialised = true;
 	}
 	void delay(uint8_t channel, float milliseconds) {
 		if (channel >= 8) return;
