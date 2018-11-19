@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := hello-world
+PROJECT_NAME := sine
 
 EXTRA_COMPONENT_DIRS += $(PROJECT_PATH)/../../../
 
