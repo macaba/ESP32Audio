@@ -1,0 +1,11 @@
+.config
+*.o
+*.pyc
+
+# Example project files
+examples/**/sdkconfig
+examples/**/sdkconfig.old
+examples/**/build
+
+# VS Code Settings
+.vscode/
