@@ -1,3 +1,5 @@
+//Example: Sine
+
 #include "Audio.h"
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
@@ -10,7 +12,7 @@ AudioControlPCM3060      pcm3060;
 
 // GUItool: begin automatically generated code
 AudioSynthWaveformSine   sine1;          //xy=398,548
-AudioSynthWaveformDC     dc1;
+AudioSynthWaveformSine   sine2;
 AudioInputI2S            i2sInput1;           //xy=401,596
 AudioOutputI2S           i2sOutput1;           //xy=750,560
 AudioEffectCalibration   calibrationOutL;
@@ -18,7 +20,7 @@ AudioEffectCalibration   calibrationOutR;
 AudioEffectCalibration   calibrationInL;
 AudioEffectCalibration   calibrationInR;
 AudioConnection          patchCord1(sine1, calibrationOutL);
-AudioConnection          patchCord2(calibrationInL, calibrationOutR);
+AudioConnection          patchCord2(sine2, calibrationOutR);
 AudioConnection          patchCord3(calibrationOutL, 0, i2sOutput1, 0);
 AudioConnection          patchCord4(calibrationOutR, 0, i2sOutput1, 1);
 AudioConnection          patchCord5(i2sInput1, 0, calibrationInL, 0);
@@ -58,10 +60,12 @@ void app_main()
     pcm3060.init();
     sine1.frequency(440);
     sine1.amplitude(0.1);
-    dc1.value(1.0);
+    sine2.frequency(880);
+    sine2.amplitude(0.1);
     calibrationOutL.calibrate(0, 0.0156, 10, 11.34);
     calibrationOutR.calibrate(0, 0.069, 10, 11.372);
     calibrationInL.calibrate(0, -0.000757, 1, 0.958241);
+    calibrationInR.calibrate(0, -0.000757, 1, 0.958241);    //Made up these values
  
     xTaskCreatePinnedToCore(audioTask, "AudioTask", 10000, NULL, configMAX_PRIORITIES - 1, NULL, 1);
 }
