@@ -26,7 +26,6 @@
 
 #ifndef effect_multiply_h_
 #define effect_multiply_h_
-#include "Audio.h"
 #include "AudioStream.h"
 
 class AudioEffectMultiply : public AudioStream
