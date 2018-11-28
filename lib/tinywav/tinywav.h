@@ -23,9 +23,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-// #ifdef __cplusplus
-// extern "C" {
-// #endif
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // http://soundfile.sapp.org/doc/WaveFormat/
 typedef struct TinyWavHeader {
@@ -122,8 +122,8 @@ void tinywav_close_write(TinyWav *tw);
 /** Returns true if the Tinywav struct is available to write or write. False otherwise. */
 bool tinywav_isOpen(TinyWav *tw);
 
-// #ifdef __cplusplus
-// }
-// #endif
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _TINY_WAV_
