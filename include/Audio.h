@@ -31,6 +31,7 @@
 #include "input_i2s.h"
 #include "mixer.h"
 #include "output_i2s.h"
+#include "play_sdmmc_wav.h"
 #include "record_psram.h"
 #include "synth_dc.h"
 #include "synth_sine.h"

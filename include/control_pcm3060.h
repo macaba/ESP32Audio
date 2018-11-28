@@ -1,7 +1,7 @@
 #ifndef control_pcm3060_h_
 #define control_pcm3060_h_
 
-#define PCM3060_ADR 0x47
+#define PCM3060_ADR 0x46
 #define PCM3060_REG_64 64
 #define PCM3060_REG_65 65
 #define PCM3060_REG_66 66
