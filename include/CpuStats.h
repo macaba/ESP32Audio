@@ -1,4 +1,11 @@
+#ifndef cpustats_h_
+#define cpustats_h_
+
 #include <esp_freertos_hooks.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 volatile uint32_t idlectrl0 = 0;
 float cpu0Load;
@@ -60,3 +67,9 @@ void StartMonitoringCPU1()
 //    __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
 //    return ccount;
 //}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

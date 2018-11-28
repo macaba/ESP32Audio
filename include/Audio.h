@@ -27,7 +27,6 @@
 #include "effect_delay.h"
 #include "effect_envelope.h"
 #include "effect_multiply.h"
-//#include "input_a2dp.h"
 #include "input_i2s.h"
 #include "mixer.h"
 #include "output_i2s.h"

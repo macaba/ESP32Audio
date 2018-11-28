@@ -1,6 +1,6 @@
-//#include <Audio.h>
 #include "play_sdmmc_wav.h"
-#include "../lib/tinywav/tinywav.h"
+#define DR_WAV_IMPLEMENTATION
+#include "../lib/dr_wav/dr_wav.h"
 
 // #define STATE_DIRECT_8BIT_MONO		0  // playing mono at native sample rate
 // #define STATE_DIRECT_8BIT_STEREO	1  // playing stereo at native sample rate
@@ -22,6 +22,7 @@
 #include "driver/sdmmc_host.h"
 #include "driver/sdspi_host.h"
 #include "sdmmc_cmd.h"
+#include <dirent.h>
 
 static const char *TAG = "AudioPlaySdMmcWav";
 
@@ -88,6 +89,27 @@ void AudioPlaySdMmcWav::begin(void)
 	// 	release(block_right);
 	// 	block_right = NULL;
 	// }
+    ESP_LOGI(TAG, "SD card mounted.");
+
+    DIR* dir;				// pointer to the scanned directory.
+    struct dirent* entry;	// pointer to one directory entry.
+
+    dir = opendir("/sdcard");
+    if (!dir)
+    {
+        ESP_LOGI(TAG, "Failed to open dir");
+    }
+    else
+    {
+        // scan the directory
+        ESP_LOGI(TAG, "Listing files");
+        while ((entry = readdir(dir)))
+        {
+            ESP_LOGI(TAG, "file: %s", entry->d_name);
+        }       
+        closedir(dir);
+    }
+
 	started = true;
 }
 
@@ -95,28 +117,20 @@ void AudioPlaySdMmcWav::loadFile(const char *filename){
 	if(!started){
 		begin();
 	}
+	
+    pWav = drwav_open_file(filename);
+    if (pWav == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for reading");
+        return;
+    }
 
-	ESP_LOGI(TAG, "Reading file");
-    //f = fopen("/sdcard/DR660 Synthbass.wav", "r");
-	// f = fopen(filename, "r");
-    // if (f == NULL) {
-    //     ESP_LOGE(TAG, "Failed to open file for reading");
-    //     return;
-    // }
-    // char line[64];
-    // fgets(line, sizeof(line), f);
-    // fclose(f);
-	TinyWav tw;
-	tinywav_open_read(&tw, filename, TW_SPLIT, TW_FLOAT32);
+    printf("Loading %i samples.", (int)pWav->totalSampleCount);
+    float* pSampleData = (float*)malloc((size_t)pWav->totalSampleCount * sizeof(float));
+    drwav_read_f32(pWav, pWav->totalSampleCount, pSampleData);
 
-	for (int i = 0; i < 100; i++) {
-		// samples are always presented in float32 format
-		float samples[1][AUDIO_BLOCK_SAMPLES];
+    // At this point pSampleData contains every decoded sample as signed 32-bit PCM.
 
-		tinywav_read_f(&tw, samples, AUDIO_BLOCK_SAMPLES);
-	}
-
-	tinywav_close_read(&tw);
+    drwav_close(pWav);
 }
 
 
@@ -152,7 +166,27 @@ void AudioPlaySdMmcWav::loadFile(const char *filename){
 
 
  void AudioPlaySdMmcWav::update(void)
- {}
+ {
+    audio_block_t *new_left=NULL, *new_right=NULL;
+
+    new_left = allocate();
+    if (new_left != NULL) {
+        new_right = allocate();
+        if (new_right == NULL) {
+            release(new_left);
+            new_left = NULL;
+        }
+    }
+
+    if(started){
+        //Read WAV file
+    }
+
+    transmit(new_left, 0);
+    release(new_left);
+    transmit(new_right, 1);
+    release(new_right);	
+ }
 // 	int32_t n;
 
 // 	// only update if we're playing

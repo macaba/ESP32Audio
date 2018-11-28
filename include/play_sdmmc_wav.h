@@ -2,7 +2,7 @@
 #define play_sdmmc_wav_h_
 
 #include "AudioStream.h"
-//#include "..\src\lib\tinywav\tinywav.h"
+#include "../lib/dr_wav/dr_wav.h"
 
 class AudioPlaySdMmcWav : public AudioStream
 {
@@ -18,6 +18,7 @@ public:
 private:
 	void begin(void);
 	bool started;
+	drwav* pWav;
 	//File wavfile;
 	//FILE* f
 	//bool consume(uint32_t size);
