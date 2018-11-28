@@ -2,7 +2,7 @@
 #define effect_compressor_h_
 
 #include "AudioStream.h"
-#include "..\src\lib\sndfilter\compressor.h"
+#include "..\lib\sndfilter\compressor.h"
 
 class AudioEffectCompressor : public AudioStream
 {

@@ -1,6 +1,6 @@
 //#include <Audio.h>
 #include "play_sdmmc_wav.h"
-#include "lib/tinywav/tinywav.h"
+#include "../lib/tinywav/tinywav.h"
 
 // #define STATE_DIRECT_8BIT_MONO		0  // playing mono at native sample rate
 // #define STATE_DIRECT_8BIT_STEREO	1  // playing stereo at native sample rate
