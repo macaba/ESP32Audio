@@ -4,4 +4,4 @@ Based on the Teensy Audio Library with heavy modification (floats for samples, n
 
 ## Examples
 
-https://github.com/macaba/ESP32AudioLibraryExampleshttps://github.com/macaba/ESP32AudioLibraryExamples
+https://github.com/macaba/ESP32AudioLibraryExamples
