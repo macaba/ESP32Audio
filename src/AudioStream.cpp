@@ -292,6 +292,8 @@ bool AudioStream::update_setup(void)
 // }
 
 AudioStream * AudioStream::first_update = NULL;
+const int updatesPerSecond = AUDIO_SAMPLE_RATE_EXACT / AUDIO_BLOCK_SAMPLES;
+int updatePerSecondCounter = 0;
 
 void AudioStream::update_all(void) // AudioStream::update_all()
 {
@@ -304,18 +306,33 @@ void AudioStream::update_all(void) // AudioStream::update_all()
 				p->clocksPerUpdate = 0;
 			}
 			else{
-				portENTER_CRITICAL(&mux);
+				if(!p->needsInterrupts)
+					portENTER_CRITICAL(&mux);
 				uint32_t startTick = xthal_get_ccount();
 				p->update();
 				uint32_t finishTick = xthal_get_ccount();
-				portEXIT_CRITICAL(&mux);
+				if(!p->needsInterrupts)
+					portEXIT_CRITICAL(&mux);
+					
 				if(finishTick > startTick)		//Ignore the wraparound boundary
+				{
 					p->clocksPerUpdate = (finishTick - startTick) - 11;			//11 is the minimum clocks to get the timer values
-				if(p->clocksPerUpdate > p->clocksPerUpdateMax)	
-					p->clocksPerUpdateMax = p->clocksPerUpdate;
+					p->clocksPerSecondSum += p->clocksPerUpdate;
+					if(p->clocksPerUpdate > p->clocksPerUpdateMax)	
+						p->clocksPerUpdateMax = p->clocksPerUpdate;
+					if(updatePerSecondCounter == (updatesPerSecond - 1))
+					{
+						p->clocksPerUpdateMax = p->clocksPerUpdate;			//Reset max
+						p->clocksPerSecond = p->clocksPerSecondSum;
+						p->clocksPerSecondSum = 0;							//Reset sum
+					}
+				}
 			}			
 		}
 	}
+	updatePerSecondCounter++;
+	if(updatePerSecondCounter == updatesPerSecond)
+		updatePerSecondCounter = 0;
 
 	if(!p->update_scheduled)
 		vTaskDelay(1000/portTICK_PERIOD_MS);		//If user is calling update_all but there aren't any streams controlling the timing, this'll stop 100% CPU

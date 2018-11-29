@@ -7,7 +7,7 @@
 class AudioPlaySdMmcWav : public AudioStream
 {
 public:
-	AudioPlaySdMmcWav(void) : AudioStream(0, NULL, "AudioPlaySdMmcWav") { pSampleData = NULL; started = false; initialised = true; }
+	AudioPlaySdMmcWav(void) : AudioStream(0, NULL, "AudioPlaySdMmcWav") { pSampleData = NULL; started = false; needsInterrupts = true; initialised = true; }
 	//bool play(const char *filename);
 	//void stop(void);
 	//bool isPlaying(void);
@@ -20,10 +20,11 @@ private:
 	bool started;
 	drwav* pWav;
 	float* pSampleData;
-	bool sampleLoaded;
-	int sampleBlockPointer;
-	int sampleMaxBlock;
-	int samplePartialEndCount;
+	bool fileLoaded;
+	int samplePointer;
+	int sampleBufferSize;
+	int fileBlockPointer;
+	int fileBlockPointerMax;
 };
 
 #endif

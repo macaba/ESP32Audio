@@ -23,24 +23,27 @@ void cpuDisplay()
     printf("%lu ms uptime\r\n\r\n", millis());
     printf("CPU 0 %5.2f%% [%5.2f%% max]  \r\n", cpu0Load, cpu0LoadMax);
     printf("CPU 1 %5.2f%% [%5.2f%% max]  \r\n\r\n", cpu1Load, cpu1LoadMax);
-    int clocks, clocksMax;
-    float load, loadMax;
+    int clocks, clocksMax, clocksSec;
+    float load, loadMax, loadSec;
     int totalClocks = 0, totalClocksMax = 0;
-    printf("%-31s %6s %7s %6s\r\n", "Audio Object", "CPU %", "Clocks", "Max %"); 
-    printf("-----------------------------------------------------\r\n");
+    printf("                                |     Per Update     |   Per Second   |\r\n"); 
+    printf("%-31s %6s %7s %6s %6s %9s\r\n", "Audio Object", "%", "Clocks", "Max %", "%", "Clocks"); 
+    printf("----------------------------------------------------------------------\r\n");
     for (p = AudioStream::first_update; p; p = p->next_update) {
         if (p->active) {
             if(!p->blocking){
                 clocks = p->clocksPerUpdate;
                 clocksMax = p->clocksPerUpdateMax;
+                clocksSec = p->clocksPerSecond;
                 load = 100.0f * ((float)clocks / maxTicksPerUpdate);
                 loadMax = 100.0f * ((float)clocksMax / maxTicksPerUpdate);
-                printf("%-31s %6.2f %7i %6.2f\r\n", p->name, load, clocks, loadMax);
+                loadSec = 100.0f * ((float)clocksSec/((float)F_CPU));
+                printf("%-31s %6.2f %7i %6.2f %6.2f %9i\r\n", p->name, load, clocks, loadMax, loadSec, clocksSec);
                 totalClocks += clocks;
                 totalClocksMax += clocksMax;
             }	
             else{
-                printf("%-31s %6s %7s %6s\r\n", p->name, "-", "-", "-");
+                printf("%-31s %6s %7s %6s %6s %9s\r\n", p->name, "-", "-", "-", "-", "-");
             }		
         }
     }

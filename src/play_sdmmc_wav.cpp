@@ -2,22 +2,6 @@
 #define DR_WAV_IMPLEMENTATION
 #include "../lib/dr_wav/dr_wav.h"
 
-// #define STATE_DIRECT_8BIT_MONO		0  // playing mono at native sample rate
-// #define STATE_DIRECT_8BIT_STEREO	1  // playing stereo at native sample rate
-// #define STATE_DIRECT_16BIT_MONO		2  // playing mono at native sample rate
-// #define STATE_DIRECT_16BIT_STEREO	3  // playing stereo at native sample rate
-// #define STATE_CONVERT_8BIT_MONO		4  // playing mono, converting sample rate
-// #define STATE_CONVERT_8BIT_STEREO	5  // playing stereo, converting sample rate
-// #define STATE_CONVERT_16BIT_MONO	6  // playing mono, converting sample rate
-// #define STATE_CONVERT_16BIT_STEREO	7  // playing stereo, converting sample rate
-// #define STATE_PARSE1			8  // looking for 20 byte ID header
-// #define STATE_PARSE2			9  // looking for 16 byte format header
-// #define STATE_PARSE3			10 // looking for 8 byte data header
-// #define STATE_PARSE4			11 // ignoring unknown chunk after "fmt "
-// #define STATE_PARSE5			12 // ignoring unknown chunk before "fmt "
-// #define STATE_STOP			13
-
-
 #include "esp_vfs_fat.h"
 #include "driver/sdmmc_host.h"
 #include "driver/sdspi_host.h"
@@ -25,6 +9,7 @@
 #include <dirent.h>
 
 static const char *TAG = "AudioPlaySdMmcWav";
+#define bufferSize 2048
 
 void AudioPlaySdMmcWav::begin(void)
 {
@@ -34,6 +19,7 @@ void AudioPlaySdMmcWav::begin(void)
 	ESP_LOGI(TAG, "Initializing SD card");
     ESP_LOGI(TAG, "Using SDMMC peripheral");
     sdmmc_host_t host = SDMMC_HOST_DEFAULT();
+    host.max_freq_khz = SDMMC_FREQ_HIGHSPEED;
 
     // This initializes the slot without card detect (CD) and write protect (WP) signals.
     // Modify slot_config.gpio_cd and slot_config.gpio_wp if your board has these signals.
@@ -99,6 +85,10 @@ void AudioPlaySdMmcWav::begin(void)
         closedir(dir);
     }
 
+    ESP_LOGI(TAG, "Allocating %i bytes for sample data", bufferSize);
+    //pSampleData = (float*)malloc(8192);
+    pSampleData = (float*)heap_caps_malloc(bufferSize, MALLOC_CAP_DMA);
+
 	started = true;
 }
 
@@ -107,7 +97,7 @@ void AudioPlaySdMmcWav::loadFile(const char *filename){
 		begin();
 	}
 	
-    sampleLoaded = false;
+    fileLoaded = false;
 
     pWav = drwav_open_file(filename);
     if (pWav == NULL) 
@@ -121,26 +111,23 @@ void AudioPlaySdMmcWav::loadFile(const char *filename){
         ESP_LOGE(TAG, "Wav file contains more than 2 channels");
         return;
     }
-    
-    if(pSampleData != NULL)
-    {           
-        free(pSampleData);
-    }
 
-    ESP_LOGI(TAG, "Allocating %i bytes for sample data", (int)(pWav->totalSampleCount * pWav->channels * sizeof(float)));
-    //pSampleData = (float*)malloc((size_t)pWav->totalSampleCount * pWav->channels * sizeof(float));
-    pSampleData = (float*)heap_caps_malloc((size_t)pWav->totalSampleCount * pWav->channels * sizeof(float), MALLOC_CAP_SPIRAM);
-    drwav_read_f32(pWav, pWav->totalSampleCount/4, pSampleData);
+    ESP_LOGI(TAG, "Wav file has %i channels", pWav->channels);
 
-    drwav_close(pWav);
+    sampleBufferSize = bufferSize/(pWav->channels * sizeof(float));
+    ESP_LOGI(TAG, "Reading %i samples", sampleBufferSize);
+    drwav_read_f32(pWav, sampleBufferSize, pSampleData);     //Read 256 samples
 
-    sampleBlockPointer = 0;
-    sampleMaxBlock = pWav->totalSampleCount / AUDIO_BLOCK_SAMPLES;
-    samplePartialEndCount = pWav->totalSampleCount % AUDIO_BLOCK_SAMPLES;
-    sampleLoaded = true;
+    samplePointer = 0;
+    //sampleBlockPointer = 0;
+    //sampleBlockPointerMax = sampleBufferSize / AUDIO_BLOCK_SAMPLES;
+    fileBlockPointer = 0;
+    fileBlockPointerMax = (pWav->totalSampleCount * pWav->channels * sizeof(float)) / bufferSize;
+    ESP_LOGI(TAG, "File block max: %i", fileBlockPointerMax);
+    fileLoaded = true;
 }
 
- void AudioPlaySdMmcWav::update(void)
+ void IRAM_ATTR AudioPlaySdMmcWav::update(void)
  {
     audio_block_t *new_left=NULL, *new_right=NULL;
 
@@ -153,36 +140,39 @@ void AudioPlaySdMmcWav::loadFile(const char *filename){
         }
     }
 
-    if(started){
-        if(sampleLoaded)
+    if(started && fileLoaded)
+    { 
+        switch(pWav->channels)
         {
-            switch(pWav->channels){
-                case 1:
-                    if(sampleBlockPointer < sampleMaxBlock){
-                        for(int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
-                        {
-                            new_left->data[i] = pSampleData[(sampleBlockPointer * AUDIO_BLOCK_SAMPLES) + i];
-                            new_right->data[i] = new_left->data[i];     //Mono
-                        }
-                        sampleBlockPointer++;
-                    }
-                    else if (sampleBlockPointer == sampleMaxBlock)
-                    {
-                        for(int i = 0; i < samplePartialEndCount; i++)
-                        {
-                            new_left->data[i] = pSampleData[(sampleBlockPointer * AUDIO_BLOCK_SAMPLES) + i];
-                            new_right->data[i] = new_left->data[i];     //Mono
-                        }
-                        for(int i = 0; i < AUDIO_BLOCK_SAMPLES - samplePartialEndCount; i++)
-                        {
-                            new_left->data[i] = 0;
-                            new_right->data[i] = 0;
-                        }
-                        sampleBlockPointer = 0;
-                    }                 
-                    break;
-            }
+            case 1:
+                for(int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
+                {
+                    new_left->data[i] = pSampleData[samplePointer++];
+                    new_right->data[i] = new_left->data[i];     //Mono
+                }
+                break;
+            case 2:
+                for(int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
+                {
+                    new_left->data[i] = pSampleData[samplePointer++];
+                    new_right->data[i] = pSampleData[samplePointer++];
+                }   
+                break;           
         }
+        if(samplePointer == sampleBufferSize)
+        {
+            samplePointer = 0;
+            fileBlockPointer++;
+            if(fileBlockPointer < fileBlockPointerMax)
+            {
+                drwav_read_f32(pWav, sampleBufferSize, pSampleData);
+            }
+            else
+            {
+                fileLoaded = false;
+                drwav_close(pWav);
+            }
+        }     
     }
 
     transmit(new_left, 0);

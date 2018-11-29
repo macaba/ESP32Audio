@@ -125,8 +125,7 @@ public:
 	bool isActive(void) { return active; }
 	uint32_t clocksPerUpdate;
 	uint32_t clocksPerUpdateMax;
-	// static uint16_t cpu_cycles_total;
-	// static uint16_t cpu_cycles_total_max;
+	uint32_t clocksPerSecond;
 	static uint16_t memory_used;
 	static uint16_t memory_used_max;
 	static void update_all(void);
@@ -138,6 +137,7 @@ public:
 	bool active;			//If true; object has been connected to
 	bool blocking;			//If true; Ignore this object when calculating CPU clocks
 	bool initialised;		//If false: Ignore this object when calculating CPU clocks. Allows for lazy loaded classes that instantiate PSRAM or Flash.
+	bool needsInterrupts;	//If true: Don't block interrupts when benchmarking
 protected:
 	unsigned char num_inputs;
 	static audio_block_t * allocate(void);
@@ -158,7 +158,8 @@ private:
 	virtual void update(void) = 0;
 	static audio_block_t *memory_pool;
 	static uint32_t memory_pool_available_mask[];
-	static uint16_t memory_pool_first_mask;			
+	static uint16_t memory_pool_first_mask;	
+	uint32_t clocksPerSecondSum;		
 };
 
 #endif
