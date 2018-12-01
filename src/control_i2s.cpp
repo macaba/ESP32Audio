@@ -59,6 +59,7 @@ void AudioControlI2S::default_codec_rx_tx_24bit()
         .dma_buf_count = 2,
         .dma_buf_len = AUDIO_BLOCK_SAMPLES,
         .use_apll = 1,
+        .tx_desc_auto_clear = true,
         .fixed_mclk = MCLK
     };
     i2s_pin_config_t pin_config = {
@@ -83,6 +84,7 @@ void AudioControlI2S::default_adc_dac()
     	.dma_buf_count = 2,
     	.dma_buf_len = AUDIO_BLOCK_SAMPLES,
     	.use_apll = 0,
+        .tx_desc_auto_clear = true,
         .fixed_mclk = 0
     };
     start((i2s_port_t)0, &i2s_config, NULL, false);
