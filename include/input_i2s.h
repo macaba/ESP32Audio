@@ -9,7 +9,7 @@
 class AudioInputI2S : public AudioStream
 {
 public:
-    AudioInputI2S() : AudioStream(0, NULL, "AudioInputI2S") { update_setup(); blocking = true; initialised = true; }        //update_setup(); let's the audiostream loop know that something will throttle the loop
+    AudioInputI2S() : AudioStream(0, NULL, "AudioInputI2S") { blockingObjectRunning = true; blocking = true; initialised = true; }        //blockingObjectRunning - let's the audiostream loop know that something will throttle the loop
     virtual void update(void);
 private:
     int32_t inputSampleBuffer[AUDIO_BLOCK_SAMPLES * 2];

@@ -27,12 +27,12 @@ void cpuDisplay()
     float load, loadMax, loadSec;
     int totalClocks = 0, totalClocksMax = 0;
     printf("                                |     Per Update     |   Per Second   |\r\n"); 
-    printf("%-31s %6s %7s %6s %6s %9s\r\n", "Audio Object", "%", "Clocks", "Max %", "%", "Clocks"); 
+    printf("%-31s %6s %7s %6s %6s %9s\r\n", "Audio Object", "Min %", "Clocks", "Max %", "%", "Clocks"); 
     printf("----------------------------------------------------------------------\r\n");
     for (p = AudioStream::first_update; p; p = p->next_update) {
         if (p->active) {
             if(!p->blocking){
-                clocks = p->clocksPerUpdate;
+                clocks = p->clocksPerUpdateMin;
                 clocksMax = p->clocksPerUpdateMax;
                 clocksSec = p->clocksPerSecond;
                 load = 100.0f * ((float)clocks / maxTicksPerUpdate);

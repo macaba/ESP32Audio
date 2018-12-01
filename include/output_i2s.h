@@ -7,7 +7,7 @@
 class AudioOutputI2S : public AudioStream
 {
 public:
-	AudioOutputI2S(void) : AudioStream(2, inputQueueArray, "AudioOutputI2S") { update_setup(); blocking = true; initialised = true; }		//update_setup(); let's the audiostream loop know that something will throttle the loop
+	AudioOutputI2S(void) : AudioStream(2, inputQueueArray, "AudioOutputI2S") { blockingObjectRunning = true; blocking = true; initialised = true; }		//blockingObjectRunning - let's the audiostream loop know that something will throttle the loop
 	virtual void update(void);	
 private:
 	//void init(void);

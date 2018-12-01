@@ -8,18 +8,35 @@
 #include "sdmmc_cmd.h"
 #include <dirent.h>
 
-static const char *TAG = "AudioPlaySdMmcWav";
-#define bufferSize 2048
 
-void AudioPlaySdMmcWav::begin(void)
+// U3 card, 40Mhz, 256 samples (1024 bytes) i16 - 12.3% / 15% / 12.8%
+// U3 card, 40Mhz, 512 samples (2048 bytes) i16 - 0.6% / 82% / 13.6%
+// U3 card, 40Mhz, 1024 samples (4096 bytes) i16 - 0.6% / 108% / 26.50%
+// U3 card, 40Mhz, 2048 samples (8192 bytes) i16 - 0.6% / 152% / 19.5%
+
+// U3 card, 20Mhz, 256 samples (1024 bytes) i16 - 13.5% / 15.4% / 13.6%
+// U3 card, 20Mhz, 512 samples (2048 bytes) i16 - 0.6% / 82% / 14.0%        (28.65%, not 82%, near beginning? Some sort of caching?)
+// U3 card, 20Mhz, 1024 samples (4096 bytes) i16 - 0.6% / 109% / 27.9%
+// U3 card, 20Mhz, 2048 samples (8192 bytes) i16 - 0.6% / 156% / 20.2%
+
+// Cheap card, 20Mhz, 256 samples (1024 bytes) i16 - 17.7% / 20.65% / 17.95%
+// Cheap card, 20Mhz, 512 samples (2048 bytes) i16 - 0.6% / 37.04% / 17.61%
+// Cheap card, 20Mhz, 1024 samples (4096 bytes) i16 - 0.6% / 69.93% / 17.45%
+// Cheap card, 20Mhz, 2048 samples (8192 bytes) i16 - 0.6% / 136.51% / 17.36%
+
+static const char *TAG = "AudioPlaySdMmcWav";
+//#define SampleBufferSize (2 * AUDIO_BLOCK_SAMPLES)       //Minimum of AUDIO_BLOCK_SAMPLES * 2. Should be multiples of AUDIO_BLOCK_SAMPLES * 2.
+bool AudioPlaySdMmcWav::configured = false;
+
+void AudioPlaySdMmcWav::configure(void)
 {
-	if(started)
+	if(configured)
 		return;
 
 	ESP_LOGI(TAG, "Initializing SD card");
     ESP_LOGI(TAG, "Using SDMMC peripheral");
     sdmmc_host_t host = SDMMC_HOST_DEFAULT();
-    host.max_freq_khz = SDMMC_FREQ_HIGHSPEED;
+    //host.max_freq_khz = SDMMC_FREQ_HIGHSPEED;
 
     // This initializes the slot without card detect (CD) and write protect (WP) signals.
     // Modify slot_config.gpio_cd and slot_config.gpio_wp if your board has these signals.
@@ -80,51 +97,59 @@ void AudioPlaySdMmcWav::begin(void)
         ESP_LOGI(TAG, "Listing files");
         while ((entry = readdir(dir)))
         {
-            ESP_LOGI(TAG, "file: %s", entry->d_name);
+            ESP_LOGI(TAG, "[file] %s", entry->d_name);
         }       
         closedir(dir);
     }
 
-    ESP_LOGI(TAG, "Allocating %i bytes for sample data", bufferSize);
-    //pSampleData = (float*)malloc(8192);
-    pSampleData = (float*)heap_caps_malloc(bufferSize, MALLOC_CAP_DMA);
-
-	started = true;
+	configured = true;
 }
 
-void AudioPlaySdMmcWav::loadFile(const char *filename){
-	if(!started){
-		begin();
+void AudioPlaySdMmcWav::playFile(const char *filename)
+{
+    playback = false;
+
+	if(!configured){
+		configure();       
 	}
 	
-    fileLoaded = false;
+    if(fileLoaded)
+    {
+        ESP_LOGI(TAG, "Closing old file.");
+        drwav_close(pWav);
+        ESP_LOGI(TAG, "Freeing old buffer.");
+        free(pSampleData);
+        fileLoaded = false;
+    }
 
     pWav = drwav_open_file(filename);
     if (pWav == NULL) 
     {
-        ESP_LOGE(TAG, "Failed to open file for reading");
+        ESP_LOGE(TAG, "Failed to open file for reading.");
         return;
     }
+    fileLoaded = true;
 
     if(pWav->channels > 2)
     {
-        ESP_LOGE(TAG, "Wav file contains more than 2 channels");
+        ESP_LOGE(TAG, "Wav file contains more than 2 channels.");
         return;
     }
 
-    ESP_LOGI(TAG, "Wav file has %i channels", pWav->channels);
+    ESP_LOGI(TAG, "Wav file has %i channels.", pWav->channels);
 
-    sampleBufferSize = bufferSize/(pWav->channels * sizeof(float));
-    ESP_LOGI(TAG, "Reading %i samples", sampleBufferSize);
+    sampleBufferSize = pWav->channels * AUDIO_BLOCK_SAMPLES;
+    ESP_LOGI(TAG, "Sample buffer size: %i, allocating %i bytes.", sampleBufferSize, sampleBufferSize * sizeof(float));
+    pSampleData = (float*)heap_caps_malloc(sampleBufferSize * sizeof(float), MALLOC_CAP_DMA);
+
     drwav_read_f32(pWav, sampleBufferSize, pSampleData);     //Read 256 samples
 
     samplePointer = 0;
-    //sampleBlockPointer = 0;
-    //sampleBlockPointerMax = sampleBufferSize / AUDIO_BLOCK_SAMPLES;
     fileBlockPointer = 0;
-    fileBlockPointerMax = (pWav->totalSampleCount * pWav->channels * sizeof(float)) / bufferSize;
+    fileBlockPointerMax = pWav->totalSampleCount / sampleBufferSize;
     ESP_LOGI(TAG, "File block max: %i", fileBlockPointerMax);
     fileLoaded = true;
+    playback = true;
 }
 
  void IRAM_ATTR AudioPlaySdMmcWav::update(void)
@@ -140,7 +165,7 @@ void AudioPlaySdMmcWav::loadFile(const char *filename){
         }
     }
 
-    if(started && fileLoaded)
+    if(configured && fileLoaded && playback)
     { 
         switch(pWav->channels)
         {
@@ -170,7 +195,6 @@ void AudioPlaySdMmcWav::loadFile(const char *filename){
             else
             {
                 fileLoaded = false;
-                drwav_close(pWav);
             }
         }     
     }

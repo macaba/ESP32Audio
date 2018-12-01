@@ -270,26 +270,7 @@ void AudioConnection::disconnect(void)
 	//__disable_irq();
 }
 
-
-// When an object has taken responsibility for calling update_all()
-// at each block interval (approx 2.9ms), this variable is set to
-// true.  Objects that are capable of calling update_all(), typically
-// input and output based on interrupts, must check this variable in
-// their constructors.
-bool AudioStream::update_scheduled = false;
-
-bool AudioStream::update_setup(void)
-{
-	if (update_scheduled) return false;
-	update_scheduled = true;
-	return true;
-}
-
-// void AudioStream::update_stop(void)
-// {
-// 	//NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
-// 	update_scheduled = false;
-// }
+bool AudioStream::blockingObjectRunning = false;
 
 AudioStream * AudioStream::first_update = NULL;
 const int updatesPerSecond = AUDIO_SAMPLE_RATE_EXACT / AUDIO_BLOCK_SAMPLES;
@@ -298,7 +279,7 @@ int updatePerSecondCounter = 0;
 void AudioStream::update_all(void) // AudioStream::update_all()
 {
 	AudioStream *p;
-	portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+	//portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 	for (p = AudioStream::first_update; p; p = p->next_update) {
 		if (p->active) {
 			if(p->blocking || !p->initialised){
@@ -306,13 +287,11 @@ void AudioStream::update_all(void) // AudioStream::update_all()
 				p->clocksPerUpdate = 0;
 			}
 			else{
-				if(!p->needsInterrupts)
-					portENTER_CRITICAL(&mux);
+				//portENTER_CRITICAL(&mux);
 				uint32_t startTick = xthal_get_ccount();
 				p->update();
 				uint32_t finishTick = xthal_get_ccount();
-				if(!p->needsInterrupts)
-					portEXIT_CRITICAL(&mux);
+				//portEXIT_CRITICAL(&mux);
 					
 				if(finishTick > startTick)		//Ignore the wraparound boundary
 				{
@@ -320,9 +299,12 @@ void AudioStream::update_all(void) // AudioStream::update_all()
 					p->clocksPerSecondSum += p->clocksPerUpdate;
 					if(p->clocksPerUpdate > p->clocksPerUpdateMax)	
 						p->clocksPerUpdateMax = p->clocksPerUpdate;
+					if(p->clocksPerUpdate < p->clocksPerUpdateMin)
+						p->clocksPerUpdateMin = p->clocksPerUpdate;
 					if(updatePerSecondCounter == (updatesPerSecond - 1))
 					{
 						p->clocksPerUpdateMax = p->clocksPerUpdate;			//Reset max
+						p->clocksPerUpdateMin = p->clocksPerUpdate;			//Reset min
 						p->clocksPerSecond = p->clocksPerSecondSum;
 						p->clocksPerSecondSum = 0;							//Reset sum
 					}
@@ -334,6 +316,6 @@ void AudioStream::update_all(void) // AudioStream::update_all()
 	if(updatePerSecondCounter == updatesPerSecond)
 		updatePerSecondCounter = 0;
 
-	if(!p->update_scheduled)
+	if(!p->blockingObjectRunning)
 		vTaskDelay(1000/portTICK_PERIOD_MS);		//If user is calling update_all but there aren't any streams controlling the timing, this'll stop 100% CPU
 }
