@@ -1,23 +1,24 @@
 #ifndef control_afs22_h_
 #define control_afs22_h_
+#include "Audio.h"
 
-#define PCM3060_ADR 0x46
-#define PCM3060_REG_64 64
-#define PCM3060_REG_65 65
-#define PCM3060_REG_66 66
-#define PCM3060_REG_67 67
-#define PCM3060_REG_68 68
-#define PCM3060_REG_69 69
-#define PCM3060_REG_70 70
-#define PCM3060_REG_71 71
-#define PCM3060_REG_72 72
-#define PCM3060_REG_73 73
-#define PCM3060_PIN_RST 21
+#define MCP23008_ADR 0x24
+#define MCP23008_REG_IODIR 0x00
+#define MCP23008_REG_IPOL 0x01
+#define MCP23008_REG_GPINTEN 0x02
+#define MCP23008_REG_DEFVAL 0x03
+#define MCP23008_REG_INTCON 0x04
+#define MCP23008_REG_IOCON 0x05
+#define MCP23008_REG_GPPU 0x06
+#define MCP23008_REG_INTF 0x07
+#define MCP23008_REG_INTCAP 0x08 //(Read-only)
+#define MCP23008_REG_GPIO 0x09
+#define MCP23008_REG_OLAT 0x0A
 
 #define I2C_MASTER_SCL_IO 19                /*!< gpio number for I2C master clock */
 #define I2C_MASTER_SDA_IO 18                /*!< gpio number for I2C master data  */
 #define I2C_MASTER_NUM I2C_NUM_0            /*!< I2C port number for master dev */
-#define I2C_MASTER_FREQ_HZ 10000           /*!< I2C master clock frequency */
+#define I2C_MASTER_FREQ_HZ 100000           /*!< I2C master clock frequency */
 #define I2C_MASTER_TX_BUF_DISABLE 0         /*!< I2C master doesn't need buffer */
 #define I2C_MASTER_RX_BUF_DISABLE 0         /*!< I2C master doesn't need buffer */
 
@@ -32,9 +33,20 @@ class AudioControlAFSTwoTwo
 {
 public:
 	AudioControlAFSTwoTwo(void){}
-	void init();
+	void setLeftInputChannelTo0V() { setGPIO(0x01); }		//GP0
+	void setLeftInputChannelTo5V() { setGPIO(0x10); }		//GP4
+	//void setLeftInputChannelToInL() { setGPIO(0x02); }		//GP1
+	void setLeftInputChannelToOutL() { setGPIO(0x20); }		//GP5
+
+	void setRightInputChannelTo0V() { setGPIO(0x04); }		//GP2
+	void setRightInputChannelTo5V() { setGPIO(0x40); }		//GP6
+	//void setRightInputChannelToInR() { setGPIO(0x08); }		//GP3
+	void setRightInputChannelToOutR() { setGPIO(0x80); }		//GP7
+
+	void setNormalInputs() { setGPIO(0x0A); }
 private:
 	static bool configured;
+	void setGPIO(uint8_t value);
 };
 
 #endif

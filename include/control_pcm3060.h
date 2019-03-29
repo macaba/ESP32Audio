@@ -1,7 +1,7 @@
 #ifndef control_pcm3060_h_
 #define control_pcm3060_h_
 
-#define PCM3060_ADR 0x46
+#define PCM3060_ADR 0x47
 #define PCM3060_REG_64 64
 #define PCM3060_REG_65 65
 #define PCM3060_REG_66 66
@@ -17,7 +17,7 @@
 #define I2C_MASTER_SCL_IO 19                /*!< gpio number for I2C master clock */
 #define I2C_MASTER_SDA_IO 18                /*!< gpio number for I2C master data  */
 #define I2C_MASTER_NUM I2C_NUM_0            /*!< I2C port number for master dev */
-#define I2C_MASTER_FREQ_HZ 10000           /*!< I2C master clock frequency */
+#define I2C_MASTER_FREQ_HZ 100000           /*!< I2C master clock frequency */
 #define I2C_MASTER_TX_BUF_DISABLE 0         /*!< I2C master doesn't need buffer */
 #define I2C_MASTER_RX_BUF_DISABLE 0         /*!< I2C master doesn't need buffer */
 

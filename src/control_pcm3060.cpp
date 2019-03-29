@@ -2,9 +2,9 @@
 #include "Audio.h"
 #include "driver/i2c.h"
 #include "driver/gpio.h"
-#include "driver/i2s.h"
-#include "output_i2s.h"
-#include "input_i2s.h"
+#include "esp_log.h"
+
+static const char *TAG = "AudioControlPCM3060";
 
 bool AudioControlPCM3060::configured = false;
 
@@ -23,7 +23,7 @@ void AudioControlPCM3060::init(void)
         i2c_param_config((i2c_port_t)i2c_master_port, &conf);
         i2c_driver_install((i2c_port_t)i2c_master_port, conf.mode, I2C_MASTER_RX_BUF_DISABLE, I2C_MASTER_TX_BUF_DISABLE, 0);
 
-        printf("Configuring PCM3060...\n");
+        ESP_LOGI(TAG, "Configuring PCM3060...");
         gpio_config_t io_conf;
         //disable interrupt
         io_conf.intr_type = (gpio_int_type_t)GPIO_PIN_INTR_DISABLE;
@@ -39,7 +39,7 @@ void AudioControlPCM3060::init(void)
         gpio_config(&io_conf);
 
         gpio_set_level((gpio_num_t)PCM3060_PIN_RST, 1);         //Enable PCM3060
-        printf("PCM3060 RST high\n");
+        ESP_LOGI(TAG, "PCM3060 RST high.");
         vTaskDelay(200/portTICK_RATE_MS);
         
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
@@ -59,13 +59,16 @@ void AudioControlPCM3060::init(void)
         i2c_master_stop(cmd);
 
         esp_err_t ret = i2c_master_cmd_begin(I2C_MASTER_NUM, cmd, 1000 / portTICK_RATE_MS);
-        if (ret != ESP_OK) {
-            printf("PCM3060 configuration error (%i).\n", ret);
-            //return ret;
+        if (ret != ESP_OK) 
+        {
+            ESP_LOGE(TAG, "PCM3060 configuration error (%i).", ret);
+        }
+        else
+        {
+            ESP_LOGI(TAG, "PCM3060 configured.");
         }
 
-        i2c_cmd_link_delete(cmd);
-        printf("PCM3060 configured.\n");
+        i2c_cmd_link_delete(cmd);      
         configured = true;
     }
 }

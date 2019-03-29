@@ -20,6 +20,7 @@
 #include "freertos/semphr.h"
 #include "freertos/queue.h"
 
+#include "control_afs22.h"
 #include "control_i2s.h"
 #include "control_pcm3060.h"
 #include "effect_calibration.h"
