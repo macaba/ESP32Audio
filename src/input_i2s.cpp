@@ -69,7 +69,7 @@ void IRAM_ATTR AudioInputI2S::update(void)
 					}
 					if(new_right != NULL)
 					{
-						input.integer = inputSampleBuffer[i*2];
+						input.integer = inputSampleBuffer[i*2 + 1];
 						output.byte[0] = input.byte[1];
 						output.byte[1] = input.byte[2];
 						output.byte[2] = input.byte[3];

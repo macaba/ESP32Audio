@@ -35,15 +35,13 @@ public:
 	AudioControlAFSTwoTwo(void){}
 	void setLeftInputChannelTo0V() { setGPIO(0x01); }		//GP0
 	void setLeftInputChannelTo5V() { setGPIO(0x10); }		//GP4
-	//void setLeftInputChannelToInL() { setGPIO(0x02); }		//GP1
 	void setLeftInputChannelToOutL() { setGPIO(0x20); }		//GP5
 
 	void setRightInputChannelTo0V() { setGPIO(0x04); }		//GP2
 	void setRightInputChannelTo5V() { setGPIO(0x40); }		//GP6
-	//void setRightInputChannelToInR() { setGPIO(0x08); }		//GP3
-	void setRightInputChannelToOutR() { setGPIO(0x80); }		//GP7
+	void setRightInputChannelToOutR() { setGPIO(0x80); }	//GP7
 
-	void setNormalInputs() { setGPIO(0x0A); }
+	void setInputsToNormal() { setGPIO(0x0A); }				//GP1/GP3
 private:
 	static bool configured;
 	void setGPIO(uint8_t value);
