@@ -3,6 +3,11 @@
 
 #include "AudioStream.h"
 #include "../lib/dr_wav/dr_wav.h"
+#include "esp_vfs_fat.h"
+#include "driver/sdmmc_host.h"
+#include "driver/sdspi_host.h"
+#include "sdmmc_cmd.h"
+#include <dirent.h>
 
 class AudioPlaySdMmcWav : public AudioStream
 {

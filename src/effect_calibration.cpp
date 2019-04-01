@@ -1,5 +1,4 @@
 #include "effect_calibration.h"
-#include "esp_log.h"
 
 static const char *TAG = "AudioEffectCalibration";
 

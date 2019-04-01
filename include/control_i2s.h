@@ -1,10 +1,12 @@
 #ifndef control_i2s_h_
 #define control_i2s_h_
 
-#include "Audio.h"
+#include "AudioStream.h"
+#include "freertos/FreeRTOS.h"
 #include "driver/i2s.h"
 #include "output_i2s.h"
 #include "input_i2s.h"
+#include "esp_log.h"
 
 #define MCLK (AUDIO_SAMPLE_RATE_EXACT * 384)
 

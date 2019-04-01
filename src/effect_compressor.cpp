@@ -1,6 +1,4 @@
 #include "effect_compressor.h"
-#include "AudioStream.h"
-#include "../lib/sndfilter/compressor.h"
 
 void AudioEffectCompressor::defaultSetup(){
     sf_defaultcomp(&compState, AUDIO_SAMPLE_RATE_EXACT);    

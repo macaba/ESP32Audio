@@ -1,13 +1,5 @@
 #include "play_sdmmc_wav.h"
 #define DR_WAV_IMPLEMENTATION
-#include "../lib/dr_wav/dr_wav.h"
-
-#include "esp_vfs_fat.h"
-#include "driver/sdmmc_host.h"
-#include "driver/sdspi_host.h"
-#include "sdmmc_cmd.h"
-#include <dirent.h>
-
 
 // U3 card, 40Mhz, 256 samples (1024 bytes) i16 - 12.3% / 15% / 12.8%
 // U3 card, 40Mhz, 512 samples (2048 bytes) i16 - 0.6% / 82% / 13.6%

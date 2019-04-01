@@ -27,8 +27,9 @@
 #ifndef mixer_h_
 #define mixer_h_
 
-#include <math.h>
 #include "AudioStream.h"
+#include <math.h>
+#include "freertos/FreeRTOS.h"
 
 class AudioMixer4 : public AudioStream
 {

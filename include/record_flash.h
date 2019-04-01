@@ -1,8 +1,9 @@
 #ifndef record_flash_h_
 #define record_flash_h_
 
-#include "Audio.h"
 #include "AudioStream.h"
+#include "freertos/FreeRTOS.h"
+#include "esp_log.h"
 #include "esp_partition.h"
 
 class AudioRecordFlash : public AudioStream

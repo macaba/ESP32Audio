@@ -27,8 +27,8 @@
 #ifndef synth_sine_h_
 #define synth_sine_h_
 
-#include "Audio.h"
 #include "AudioStream.h"
+#include "freertos/FreeRTOS.h"
 
 class AudioSynthWaveformSine : public AudioStream
 {

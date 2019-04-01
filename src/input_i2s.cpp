@@ -1,7 +1,4 @@
 #include "input_i2s.h"
-#include "Audio.h"
-#include "driver/i2s.h"
-#include "control_i2s.h"
 
 void IRAM_ATTR AudioInputI2S::update(void)
 {

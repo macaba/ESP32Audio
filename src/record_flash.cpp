@@ -1,8 +1,4 @@
-//#include "Audio.h"
 #include "record_flash.h"
-#include "freertos/FreeRTOS.h"
-#include "esp_log.h"
-#include "esp_partition.h"
 
 #define PARTITION_NAME   "storage"
 

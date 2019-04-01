@@ -1,8 +1,9 @@
 #ifndef record_psram_h_
 #define record_psram_h_
 
-#include "Audio.h"
 #include "AudioStream.h"
+//#include "esp_spiram.h"
+#include "freertos/FreeRTOS.h"
 
 #define RECORD_PSRAM_BLOCK_MAX  (AUDIO_SAMPLE_RATE_EXACT / AUDIO_BLOCK_SAMPLES) * 10
 

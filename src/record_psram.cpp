@@ -1,5 +1,4 @@
 #include "record_psram.h"
-//#include "esp_spiram.h"
 
 void AudioRecordPSRAM::init(int num)
 {

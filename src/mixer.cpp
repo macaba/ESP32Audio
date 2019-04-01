@@ -24,7 +24,6 @@
  * THE SOFTWARE.
  */
 
-#include "Audio.h"
 #include "mixer.h"
 
 #define MULTI_UNITYGAIN 1.0

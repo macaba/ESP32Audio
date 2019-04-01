@@ -1,8 +1,10 @@
 #ifndef output_i2s_h_
 #define output_i2s_h_
 
-#include "Audio.h"
 #include "AudioStream.h"
+#include "freertos/FreeRTOS.h"
+#include "driver/i2s.h"
+#include "control_i2s.h"
 
 class AudioOutputI2S : public AudioStream
 {

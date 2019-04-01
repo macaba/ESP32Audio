@@ -1,7 +1,4 @@
 #include "control_i2s.h"
-#include "AudioStream.h"
-#include "driver/i2s.h"
-#include "esp_log.h"
 
 static const char *TAG = "AudioControlI2S";
 

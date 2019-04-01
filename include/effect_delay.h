@@ -26,8 +26,9 @@
 
 #ifndef effect_delay_h_
 #define effect_delay_h_
-#include "Audio.h"
+
 #include "AudioStream.h"
+#include "freertos/FreeRTOS.h"
 
 #define DELAY_QUEUE_SIZE  (20480  / AUDIO_BLOCK_SAMPLES)
 

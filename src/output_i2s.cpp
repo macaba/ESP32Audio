@@ -1,7 +1,4 @@
 #include "output_i2s.h"
-#include "freertos/FreeRTOS.h"
-#include "driver/i2s.h"
-#include "control_i2s.h"
 
 void IRAM_ATTR AudioOutputI2S::update(void)
 {

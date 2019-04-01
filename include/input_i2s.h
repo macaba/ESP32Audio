@@ -1,8 +1,10 @@
 #ifndef input_i2s_h_
 #define input_i2s_h_
 
-#include "Audio.h"
 #include "AudioStream.h"
+#include "freertos/FreeRTOS.h"
+#include "driver/i2s.h"
+#include "control_i2s.h"
 
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
 

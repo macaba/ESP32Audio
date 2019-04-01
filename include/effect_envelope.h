@@ -26,8 +26,9 @@
 
 #ifndef effect_envelope_h_
 #define effect_envelope_h_
-#include "Audio.h"
+
 #include "AudioStream.h"
+#include "freertos/FreeRTOS.h"
 
 #define SAMPLES_PER_MSEC (AUDIO_SAMPLE_RATE_EXACT/1000.0)
 

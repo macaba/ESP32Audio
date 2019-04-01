@@ -1,6 +1,9 @@
 #ifndef control_afs22_h_
 #define control_afs22_h_
-#include "Audio.h"
+#include "AudioStream.h"
+#include "effect_calibration.h"
+#include "driver/i2c.h"
+#include "esp_log.h"
 
 #define MCP23008_ADR 0x24
 #define MCP23008_REG_IODIR 0x00
@@ -29,10 +32,15 @@
 #define ACK_VAL 0x0                             /*!< I2C ack value */
 #define NACK_VAL 0x1                            /*!< I2C nack value */
 
+class AudioEffectCalibration;
+
 class AudioControlAFSTwoTwo
 {
 public:
 	AudioControlAFSTwoTwo(void){}
+	void init(void);
+	void calibrate(AudioEffectCalibration* calibrationInL, AudioEffectCalibration* calibrationOutL, AudioEffectCalibration* calibrationInR, AudioEffectCalibration* calibrationOutR);
+
 	void setLeftInputChannelTo0V() { setGPIO(0x01); }		//GP0
 	void setLeftInputChannelTo5V() { setGPIO(0x10); }		//GP4
 	void setLeftInputChannelToOutL() { setGPIO(0x20); }		//GP5

@@ -1,8 +1,8 @@
 #ifndef synth_dc_h_
 #define synth_dc_h_
 
-#include "Audio.h"
 #include "AudioStream.h"
+#include "freertos/FreeRTOS.h"
 
 class AudioSynthWaveformDC : public AudioStream
 {
