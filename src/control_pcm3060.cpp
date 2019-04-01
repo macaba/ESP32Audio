@@ -1,8 +1,4 @@
 #include "control_pcm3060.h"
-#include "Audio.h"
-#include "driver/i2c.h"
-#include "driver/gpio.h"
-#include "esp_log.h"
 
 static const char *TAG = "AudioControlPCM3060";
 
@@ -29,11 +25,11 @@ void AudioControlPCM3060::init(void)
 
         gpio_set_level((gpio_num_t)PCM3060_PIN_RST, 1);         //Enable PCM3060
         ESP_LOGI(TAG, "PCM3060 RST high.");
-        vTaskDelay(200/portTICK_RATE_MS);
+        vTaskDelay(100/portTICK_RATE_MS);
         
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
         i2c_master_start(cmd);
-        i2c_master_write_byte(cmd, PCM3060_ADR << 1 | WRITE_BIT, ACK_CHECK_EN);
+        i2c_master_write_byte(cmd, PCM3060_ADR << 1 | I2C_MASTER_WRITE, ACK_CHECK_EN);
         i2c_master_write_byte(cmd, PCM3060_REG_64, ACK_CHECK_EN);
         i2c_master_write_byte(cmd, 0xC0, ACK_CHECK_EN); //64
         i2c_master_write_byte(cmd, 0xFF, ACK_CHECK_EN); //65
@@ -47,7 +43,7 @@ void AudioControlPCM3060::init(void)
         i2c_master_write_byte(cmd, 0x08, ACK_CHECK_EN); //73
         i2c_master_stop(cmd);
 
-        esp_err_t ret = i2c_master_cmd_begin(I2C_MASTER_NUM, cmd, 1000 / portTICK_RATE_MS);
+        esp_err_t ret = i2c_master_cmd_begin(I2C_NUM_0, cmd, 1000 / portTICK_RATE_MS);
         if (ret != ESP_OK) 
         {
             ESP_LOGE(TAG, "PCM3060 configuration error (%i).", ret);

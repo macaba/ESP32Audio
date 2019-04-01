@@ -26,18 +26,18 @@ void AudioControlAFSTwoTwo::init()
 void AudioControlAFSTwoTwo::calibrate(AudioEffectCalibration* calibrationInL, AudioEffectCalibration* calibrationOutL, AudioEffectCalibration* calibrationInR, AudioEffectCalibration* calibrationOutR)
 {
     static const char *TAG = "AudioControlAFSTwoTwoCalibration";
-    const int delayMs = 50;
+    const int delayMs = 20;     //Worse case buffer delay for the MUX_OUTPUT calibration is 11.60ms
     float in0V, in5V, out0V, out5V;
     calibrationInL->enableAverage();
 
     //Input L calibration
     calibrationInL->inputNormal();
     //ESP_LOGI(TAG, "Setting left input to 0V.");
-    setLeftInputChannelTo0V();
+    setInputChannelMux(MUX_ZERO_VOLTS, MUX_NONE);
     vTaskDelay(delayMs/portTICK_RATE_MS);
     in0V = calibrationInL->getInputAverage(); 
     //ESP_LOGI(TAG, "Setting left input to 5V.");
-    setLeftInputChannelTo5V();
+    setInputChannelMux(MUX_FIVE_VOLTS, MUX_NONE);
     vTaskDelay(delayMs/portTICK_RATE_MS);
     in5V = calibrationInL->getInputAverage();
     ESP_LOGI(TAG, "Left input 0V: %.4f, 5V: %.4f", in0V * 10, in5V * 10);
@@ -45,21 +45,21 @@ void AudioControlAFSTwoTwo::calibrate(AudioEffectCalibration* calibrationInL, Au
     calibrationInL->calibrate(0, in0V, 0.5, in5V);
 
     //ESP_LOGI(TAG, "Setting left input to 0V.");
-    setLeftInputChannelTo0V();
+    setInputChannelMux(MUX_ZERO_VOLTS, MUX_NONE);
     vTaskDelay(delayMs/portTICK_RATE_MS);
     in0V = calibrationInL->getOutputAverage(); 
     //ESP_LOGI(TAG, "Setting left input to 5V.");
-    setLeftInputChannelTo5V();
+    setInputChannelMux(MUX_FIVE_VOLTS, MUX_NONE);
     vTaskDelay(delayMs/portTICK_RATE_MS);
     in5V = calibrationInL->getOutputAverage();
     ESP_LOGI(TAG, "Left input 0V: %.4f, 5V: %.4f", in0V * 10, in5V * 10);
     if(in0V < 0.001 && in0V > -0.001 && in5V > 0.499 && in5V < 0.501)
     ESP_LOGI(TAG, "Input L calibration confirmed.");
     else
-    ESP_LOGI(TAG, "Input L calibration failed.");
+    ESP_LOGE(TAG, "Input L calibration failed.");
 
     //Output L calibration
-    setLeftInputChannelToOutL();
+    setInputChannelMux(MUX_OUTPUT, MUX_NONE);
     //ESP_LOGI(TAG, "Setting left input to Out L at 0V.");
     calibrationOutL->inputDC(0.0);
     vTaskDelay(delayMs/portTICK_RATE_MS);
@@ -73,7 +73,6 @@ void AudioControlAFSTwoTwo::calibrate(AudioEffectCalibration* calibrationInL, Au
     calibrationOutL->calibrate(0, out0V, 0.5, out5V);
 
     //ESP_LOGI(TAG, "Setting left input to Out L at 0V.");
-    setLeftInputChannelToOutL();
     calibrationOutL->inputDC(0.0);
     vTaskDelay(delayMs/portTICK_RATE_MS);
     out0V = calibrationInL->getOutputAverage();
@@ -85,7 +84,7 @@ void AudioControlAFSTwoTwo::calibrate(AudioEffectCalibration* calibrationInL, Au
     if(out0V < 0.001 && out0V > -0.001 && out5V > 0.499 && out5V < 0.501) 
     ESP_LOGI(TAG, "Output L calibration confirmed.");
     else
-    ESP_LOGI(TAG, "Output L calibration failed.");
+    ESP_LOGE(TAG, "Output L calibration failed.");
 
     calibrationOutL->inputNormal();
     calibrationInL->disableAverage();
@@ -94,11 +93,11 @@ void AudioControlAFSTwoTwo::calibrate(AudioEffectCalibration* calibrationInL, Au
     //Input R calibration
     calibrationInR->inputNormal();
     //ESP_LOGI(TAG, "Setting right input to 0V.");
-    setRightInputChannelTo0V();
+    setInputChannelMux(MUX_NONE, MUX_ZERO_VOLTS);
     vTaskDelay(delayMs/portTICK_RATE_MS);
     in0V = calibrationInR->getInputAverage(); 
     //ESP_LOGI(TAG, "Setting right input to 5V.");
-    setRightInputChannelTo5V();
+    setInputChannelMux(MUX_NONE, MUX_FIVE_VOLTS);
     vTaskDelay(delayMs/portTICK_RATE_MS);
     in5V = calibrationInR->getInputAverage();
     ESP_LOGI(TAG, "Right input 0V: %.4f, 5V: %.4f", in0V * 10, in5V * 10);
@@ -106,21 +105,21 @@ void AudioControlAFSTwoTwo::calibrate(AudioEffectCalibration* calibrationInL, Au
     calibrationInR->calibrate(0, in0V, 0.5, in5V);
 
     //ESP_LOGI(TAG, "Setting right input to 0V.");
-    setRightInputChannelTo0V();
+    setInputChannelMux(MUX_NONE, MUX_ZERO_VOLTS);
     vTaskDelay(delayMs/portTICK_RATE_MS);
     in0V = calibrationInR->getOutputAverage(); 
     //ESP_LOGI(TAG, "Setting right input to 5V.");
-    setRightInputChannelTo5V();
+    setInputChannelMux(MUX_NONE, MUX_FIVE_VOLTS);
     vTaskDelay(delayMs/portTICK_RATE_MS);
     in5V = calibrationInR->getOutputAverage();
     ESP_LOGI(TAG, "Right input 0V: %.4f, 5V: %.4f", in0V * 10, in5V * 10);
     if(in0V < 0.001 && in0V > -0.001 && in5V > 0.499 && in5V < 0.501)
     ESP_LOGI(TAG, "Input R calibration confirmed.");
     else
-    ESP_LOGI(TAG, "Input R calibration failed.");
+    ESP_LOGE(TAG, "Input R calibration failed.");
 
     //Output R calibration
-    setRightInputChannelToOutR();
+    setInputChannelMux(MUX_NONE, MUX_OUTPUT);
     //ESP_LOGI(TAG, "Setting right input to Out R at 0V.");
     calibrationOutR->inputDC(0.0);
     vTaskDelay(delayMs/portTICK_RATE_MS);
@@ -133,7 +132,6 @@ void AudioControlAFSTwoTwo::calibrate(AudioEffectCalibration* calibrationInL, Au
     if(out0V < 0.05 && out0V > -0.05 && out5V > 0.45 && out5V < 0.55) 
     calibrationOutR->calibrate(0, out0V, 0.5, out5V);
 
-    setRightInputChannelToOutR();
     //ESP_LOGI(TAG, "Setting right input to Out R at 0V.");
     calibrationOutR->inputDC(0.0);
     vTaskDelay(delayMs/portTICK_RATE_MS);
@@ -146,21 +144,61 @@ void AudioControlAFSTwoTwo::calibrate(AudioEffectCalibration* calibrationInL, Au
     if(out0V < 0.001 && out0V > -0.001 && out5V > 0.499 && out5V < 0.501) 
     ESP_LOGI(TAG, "Output R calibration confirmed.");
     else
-    ESP_LOGI(TAG, "Output R calibration failed.");
+    ESP_LOGE(TAG, "Output R calibration failed.");
 
     calibrationOutR->inputNormal();
     calibrationInR->disableAverage();
-    setInputsToNormal();
+    setInputChannelMux(MUX_INPUT, MUX_INPUT);
     //ESP_LOGI(TAG, "Inputs set to input pins.");
+}
+
+void AudioControlAFSTwoTwo::setInputChannelMux(afs_channel_mux left, afs_channel_mux right)
+{
+    uint8_t value = 0;
+    switch(left)
+    {
+        case MUX_NONE:
+        break;
+        case MUX_ZERO_VOLTS:
+        value |= 0x01;
+        break;
+        case MUX_FIVE_VOLTS:
+        value |= 0x10;
+        break;
+        case MUX_OUTPUT:
+        value |= 0x20;
+        break;
+        case MUX_INPUT:
+        value |= 0x02;
+        break;
+    }
+    switch(right)
+    {
+        case MUX_NONE:
+        break;
+        case MUX_ZERO_VOLTS:
+        value |= 0x04;
+        break;
+        case MUX_FIVE_VOLTS:
+        value |= 0x40;
+        break;
+        case MUX_OUTPUT:
+        value |= 0x80;
+        break;
+        case MUX_INPUT:
+        value |= 0x08;
+        break;
+    }
+    setGPIO(value);
 }
 
 void AudioControlAFSTwoTwo::setGPIO(uint8_t value)
 {
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, MCP23008_ADR << 1 | WRITE_BIT, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, MCP23008_ADR << 1 | I2C_MASTER_WRITE, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, MCP23008_REG_IODIR, ACK_CHECK_EN);
-    i2c_master_write_byte(cmd, 0x00, ACK_CHECK_EN); //All outputs
+    i2c_master_write_byte(cmd, 0x00, ACK_CHECK_EN); //All MUX_OUTPUTs
     i2c_master_write_byte(cmd, 0x00, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, 0x00, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, 0x00, ACK_CHECK_EN);

@@ -21,16 +21,20 @@
 #define I2C_MASTER_SCL_IO 19                /*!< gpio number for I2C master clock */
 #define I2C_MASTER_SDA_IO 18                /*!< gpio number for I2C master data  */
 #define I2C_MASTER_NUM I2C_NUM_0            /*!< I2C port number for master dev */
-#define I2C_MASTER_FREQ_HZ 100000           /*!< I2C master clock frequency */
+#define I2C_MASTER_FREQ_HZ 400000           /*!< I2C master clock frequency */
 #define I2C_MASTER_TX_BUF_DISABLE 0         /*!< I2C master doesn't need buffer */
 #define I2C_MASTER_RX_BUF_DISABLE 0         /*!< I2C master doesn't need buffer */
 
-#define WRITE_BIT I2C_MASTER_WRITE              /*!< I2C master write */
-#define READ_BIT I2C_MASTER_READ                /*!< I2C master read */
 #define ACK_CHECK_EN 0x1                        /*!< I2C master will check ack from slave*/
 #define ACK_CHECK_DIS 0x0                       /*!< I2C master will not check ack from slave */
-#define ACK_VAL 0x0                             /*!< I2C ack value */
-#define NACK_VAL 0x1                            /*!< I2C nack value */
+
+typedef enum {
+	MUX_NONE = 0,
+    MUX_ZERO_VOLTS = 1,
+    MUX_FIVE_VOLTS = 2,
+    MUX_OUTPUT = 3,
+	MUX_INPUT = 4
+} afs_channel_mux;
 
 class AudioEffectCalibration;
 
@@ -40,16 +44,7 @@ public:
 	AudioControlAFSTwoTwo(void){}
 	void init(void);
 	void calibrate(AudioEffectCalibration* calibrationInL, AudioEffectCalibration* calibrationOutL, AudioEffectCalibration* calibrationInR, AudioEffectCalibration* calibrationOutR);
-
-	void setLeftInputChannelTo0V() { setGPIO(0x01); }		//GP0
-	void setLeftInputChannelTo5V() { setGPIO(0x10); }		//GP4
-	void setLeftInputChannelToOutL() { setGPIO(0x20); }		//GP5
-
-	void setRightInputChannelTo0V() { setGPIO(0x04); }		//GP2
-	void setRightInputChannelTo5V() { setGPIO(0x40); }		//GP6
-	void setRightInputChannelToOutR() { setGPIO(0x80); }	//GP7
-
-	void setInputsToNormal() { setGPIO(0x0A); }				//GP1/GP3
+	void setInputChannelMux(afs_channel_mux left, afs_channel_mux right);
 private:
 	static bool configured;
 	void setGPIO(uint8_t value);
