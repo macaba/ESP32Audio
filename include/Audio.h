@@ -4,7 +4,6 @@
 // include all the library headers, so a sketch can use a single
 // #include <Audio.h> to get the whole library
 
-#include "control_afs22.h"
 #include "control_i2s.h"
 #include "control_pcm3060.h"
 #include "effect_calibration.h"
