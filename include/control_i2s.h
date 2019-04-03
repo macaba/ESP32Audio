@@ -15,9 +15,9 @@ class AudioControlI2S
 public:
 	AudioControlI2S(void){}
 	virtual ~AudioControlI2S();
-	void start(i2s_port_t i2s_port, i2s_config_t* i2s_config, i2s_pin_config_t* i2s_pin_config, bool outputMCLK);
-    void default_codec_rx_tx_24bit();
-    void default_adc_dac();
+	void init(i2s_port_t i2s_port, i2s_config_t* i2s_config, i2s_pin_config_t* i2s_pin_config, bool outputMCLK);
+    void init_default_codec_rx_tx_24bit();
+    void init_default_adc_dac();
 	friend class AudioInputI2S;
     friend class AudioOutputI2S;
 protected:

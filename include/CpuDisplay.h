@@ -1,7 +1,7 @@
 #ifndef cpudisplay_h_
 #define cpudisplay_h_
 
-#include "Audiostream.h"
+#include "AudioStream.h"
 
 #ifdef __cplusplus
 extern "C" {

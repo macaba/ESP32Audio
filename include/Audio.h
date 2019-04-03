@@ -5,7 +5,6 @@
 // #include <Audio.h> to get the whole library
 
 #include "control_i2s.h"
-#include "control_pcm3060.h"
 #include "effect_calibration.h"
 #include "effect_compressor.h"
 #include "effect_delay.h"

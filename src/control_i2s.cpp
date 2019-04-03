@@ -5,7 +5,7 @@ static const char *TAG = "AudioControlI2S";
 bool AudioControlI2S::configured = false;
 uint8_t AudioControlI2S::bits = 16;
 
-void AudioControlI2S::start(i2s_port_t i2s_port, i2s_config_t* i2s_config, i2s_pin_config_t* i2s_pin_config, bool outputMCLK)
+void AudioControlI2S::init(i2s_port_t i2s_port, i2s_config_t* i2s_config, i2s_pin_config_t* i2s_pin_config, bool outputMCLK)
 {
     if(!configured)
     {
@@ -46,7 +46,7 @@ void AudioControlI2S::start(i2s_port_t i2s_port, i2s_config_t* i2s_config, i2s_p
 	}
 }
 
-void AudioControlI2S::default_codec_rx_tx_24bit()
+void AudioControlI2S::init_default_codec_rx_tx_24bit()
 {
     i2s_mode_t mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_RX);
     i2s_config_t i2s_config = {
@@ -68,10 +68,10 @@ void AudioControlI2S::default_codec_rx_tx_24bit()
         .data_out_num = 22,
         .data_in_num = 23                                                       //Not used
     };
-    start((i2s_port_t)0, &i2s_config, &pin_config, true);
+    init((i2s_port_t)0, &i2s_config, &pin_config, true);
 }
 
-void AudioControlI2S::default_adc_dac()
+void AudioControlI2S::init_default_adc_dac()
 {
     i2s_mode_t mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_RX | I2S_MODE_DAC_BUILT_IN | I2S_MODE_ADC_BUILT_IN);
     i2s_config_t i2s_config = {
@@ -87,7 +87,7 @@ void AudioControlI2S::default_adc_dac()
         .tx_desc_auto_clear = true,
         .fixed_mclk = 0
     };
-    start((i2s_port_t)0, &i2s_config, NULL, false);
+    init((i2s_port_t)0, &i2s_config, NULL, false);
 }
 
 AudioControlI2S::~AudioControlI2S(){
