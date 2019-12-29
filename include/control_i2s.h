@@ -21,7 +21,7 @@ public:
 	friend class AudioInputI2S;
     friend class AudioOutputI2S;
 protected:
-	static bool configured;
+	static bool initialised;
 	static uint8_t bits;
 };
 

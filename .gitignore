@@ -9,3 +9,4 @@ examples/**/build
 
 # VS Code Settings
 .vscode/
+build

@@ -2,12 +2,12 @@
 
 static const char *TAG = "AudioControlI2S";
 
-bool AudioControlI2S::configured = false;
+bool AudioControlI2S::initialised = false;
 uint8_t AudioControlI2S::bits = 16;
 
 void AudioControlI2S::init(i2s_port_t i2s_port, i2s_config_t* i2s_config, i2s_pin_config_t* i2s_pin_config, bool outputMCLK)
 {
-    if(!configured)
+    if(!initialised)
     {
         bits = (uint8_t)i2s_config->bits_per_sample;
 
@@ -17,32 +17,34 @@ void AudioControlI2S::init(i2s_port_t i2s_port, i2s_config_t* i2s_config, i2s_pi
 			printf("ERROR: Unable to install I2S driver\n");
 		}
 
+		ESP_LOGI(TAG, "I2S driver installed");
+		 
         if(i2s_pin_config != NULL)
         {
             i2s_set_pin(i2s_port, i2s_pin_config);
-            ESP_LOGI(TAG, "I2S Pin Config set.");
+            ESP_LOGI(TAG, "I2S Pin Config set");
         }
 
         if(outputMCLK)
         {
             PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO0_U, FUNC_GPIO0_CLK_OUT1);
             REG_SET_FIELD(PIN_CTRL, CLK_OUT1, 0);
-            ESP_LOGI(TAG, "MCLK output on CLK_OUT1.");
+            ESP_LOGI(TAG, "MCLK output on CLK_OUT1");
         }
 
         if(i2s_config->mode & I2S_MODE_DAC_BUILT_IN)
         {
             //i2s_set_dac_mode(I2S_DAC_CHANNEL_BOTH_EN);
-            ESP_LOGI(TAG, "I2S internal DAC set. (warning: not implemented)");
+            ESP_LOGI(TAG, "I2S internal DAC set (warning: not implemented)");
         }
 
         if(i2s_config->mode & I2S_MODE_ADC_BUILT_IN)
         {
             i2s_set_adc_mode(ADC_UNIT_1, ADC1_CHANNEL_6);		//Pin 34
 	        i2s_adc_enable(I2S_NUM_0);
-            ESP_LOGI(TAG, "I2S internal ADC set.");
+            ESP_LOGI(TAG, "I2S internal ADC set");
         }
-		configured = true;
+		initialised = true;
 	}
 }
 
@@ -66,7 +68,7 @@ void AudioControlI2S::init_default_codec_rx_tx_24bit()
         .bck_io_num = 26,
         .ws_io_num = 25,
         .data_out_num = 22,
-        .data_in_num = 23                                                       //Not used
+        .data_in_num = 34                                                       //Not used
     };
     init((i2s_port_t)0, &i2s_config, &pin_config, true);
 }
@@ -91,9 +93,9 @@ void AudioControlI2S::init_default_adc_dac()
 }
 
 AudioControlI2S::~AudioControlI2S(){
-    if(configured)
+    if(initialised)
     {
-        ESP_LOGI(TAG, "Uninstall I2S.");
         i2s_driver_uninstall((i2s_port_t)0); //stop & destroy i2s driver
+		ESP_LOGI(TAG, "I2S driver uninstalled");
     }
 }

@@ -4,7 +4,7 @@ void IRAM_ATTR AudioOutputI2S::update(void)
 {
 	audio_block_t *block_left, *block_right;
 
-	if(AudioControlI2S::configured)
+	if(AudioControlI2S::initialised)
 	{
 		block_left = receiveReadOnly(0);  // input 0
 		block_right = receiveReadOnly(1); // input 1
@@ -31,28 +31,28 @@ void IRAM_ATTR AudioOutputI2S::update(void)
 				for(int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 				{
 					if(block_left)
-						outputSampleBuffer[i*2 + 1] = (-((int32_t)(block_left->data[i] * 8388608.0f))) << 8;
-					else
-						outputSampleBuffer[i*2 + 1] = 0;
-					
-					if(block_right)
-						outputSampleBuffer[i*2] = (-((int32_t)(block_right->data[i] * 8388608.0f))) << 8;
+						outputSampleBuffer[i*2] = (-((int32_t)(block_left->data[i] * 8388608.0f))) << 8;
 					else
 						outputSampleBuffer[i*2] = 0;
+					
+					if(block_right)
+						outputSampleBuffer[i*2 + 1] = (-((int32_t)(block_right->data[i] * 8388608.0f))) << 8;
+					else
+						outputSampleBuffer[i*2 + 1] = 0;
 				}
 				break;
 			case 32:
 				for(int i = 0; i < AUDIO_BLOCK_SAMPLES; i++)
 				{
 					if(block_left)
-						outputSampleBuffer[i*2 + 1] = ((int32_t)(block_left->data[i] * 1073741823.0f));
-					else
-						outputSampleBuffer[i*2 + 1] = 0;
-					
-					if(block_right)
-						outputSampleBuffer[i*2] = ((int32_t)(block_right->data[i] * 1073741823.0f));
+						outputSampleBuffer[i*2] = ((int32_t)(block_left->data[i] * 1073741823.0f));
 					else
 						outputSampleBuffer[i*2] = 0;
+					
+					if(block_right)
+						outputSampleBuffer[i*2 + 1] = ((int32_t)(block_right->data[i] * 1073741823.0f));
+					else
+						outputSampleBuffer[i*2 + 1] = 0;
 				}
 				break;
 			default:

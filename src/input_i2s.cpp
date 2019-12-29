@@ -4,7 +4,7 @@ void IRAM_ATTR AudioInputI2S::update(void)
 {
 	audio_block_t *new_left=NULL, *new_right=NULL;
 
-	if(AudioControlI2S::configured)
+	if(AudioControlI2S::initialised)
 	{
 		new_left = allocate();
 		if (new_left != NULL) {
