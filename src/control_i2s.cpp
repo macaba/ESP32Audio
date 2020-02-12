@@ -11,10 +11,9 @@ void AudioControlI2S::init(i2s_port_t i2s_port, i2s_config_t* i2s_config, i2s_pi
     {
         bits = (uint8_t)i2s_config->bits_per_sample;
 
-		printf("+%d %p\n", 0, i2s_config);
 		if (i2s_driver_install(i2s_port, i2s_config, 0, NULL) != ESP_OK) 
 		{
-			printf("ERROR: Unable to install I2S driver\n");
+			ESP_LOGE(TAG, "ERROR: Unable to install I2S driver\n");
 		}
 
 		ESP_LOGI(TAG, "I2S driver installed");

@@ -52,7 +52,7 @@ void AudioStream::initialize_memory(audio_block_t *data, unsigned int num)
 	unsigned int i;
 	unsigned int maxnum = MAX_AUDIO_MEMORY / AUDIO_BLOCK_SAMPLES / 2;
 
-	printf("AudioStream initialize_memory\n");
+	ESP_LOGI("AudioStream", "initialize_memory");
 	//delay(10);
 	if (num > maxnum) num = maxnum;
 	//__disable_irq();

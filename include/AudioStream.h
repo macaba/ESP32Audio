@@ -34,6 +34,7 @@
 #include <stdio.h>  // for NULL
 #include <string.h> // for memcpy
 #include <inttypes.h>
+#include "esp_log.h"
 
 #define AUDIO_BLOCK_SAMPLES  128
 #define AUDIO_SAMPLE_RATE_EXACT 44100
